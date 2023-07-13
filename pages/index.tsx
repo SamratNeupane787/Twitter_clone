@@ -1,8 +1,9 @@
-
+import Header from "./Components/Header/Header"
 export default function Home() {
   return (
-   <div className=" text-white">
-    hellow word
-   </div>
+   <>
+    <Header label='Home'/>
+   
+   </>
   )
 }
