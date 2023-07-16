@@ -1,48 +1,70 @@
-import useLoginModel from "@/hooks/UserLoginmodal"
 import { useCallback, useState } from "react";
+import {toast} from "react-hot-toast"
+import{ signIn } from  "next-auth/react"
+import axios from "axios";
+
+// Importing components
+
 import Input from "../Input"
 import Model from "../Model";
 import useRegisterModel from "@/hooks/UserRegisterModal";
-import LoginModal from "./LoginModal";
+import useLoginModel from "@/hooks/UserLoginmodal"
+
 
 
 
 
 const RegisterModal = () =>{
     const loginModal = useLoginModel();
-    const RegisterModal = useRegisterModel();
+    const registerModal = useRegisterModel();
 
     const [email, setEmail] = useState('');
     const [password, setPassword ] =useState('');
     const [name, setName] = useState('')
-    const [userName, setUserName] =useState('')
+    const [username, setUserName] =useState('')
     const [isLoading , setIsloading ] = useState(false);
 
     const onToggle = useCallback(() =>{
         if(isLoading){
-            return
+            return;
         }
 
-        RegisterModal.onClose();
+        registerModal.onClose();
         loginModal.onOpen();
 
-    },[isLoading, RegisterModal, loginModal])
+    },[isLoading, registerModal, loginModal])
 
     const onSubmit = useCallback(async() =>{
         try{
                 setIsloading(true)
-                //todo register and login
+                
+                await axios.post('/api/register',{
+                    email,
+                    password,
+                    username,
+                    name
+                });
+
+                toast.success("Account Created.")
+
+                signIn('credentials',{
+                    email, 
+                    password
+                })
 
 
-                RegisterModal.onClose();
+                registerModal.onClose();
 
         }
         catch(error){
-            console.log(error)
+            console.log(error);
+
+            toast.error('Something went wrong!');
         }
+
         finally{
             setIsloading(false);        }
-    },[loginModal])
+    },[registerModal, email, password, username, name])
 
 
     const bodyContent = (
@@ -66,7 +88,7 @@ const RegisterModal = () =>{
 <Input 
             placeholder= 'UserName'
             onChange={(e) => setUserName(e.target.value)}
-            value ={userName}
+            value ={username}
             disabled={isLoading}
 
 />
@@ -96,10 +118,10 @@ const RegisterModal = () =>{
     return  (
    <Model 
    disabled={isLoading}
-    isOpen={RegisterModal.isOpen} 
+    isOpen={registerModal.isOpen} 
     title="Create an Account"
      actionLabel="Register" 
-     onClose={RegisterModal.onClose} 
+     onClose={registerModal.onClose} 
      onSubmit={onSubmit}
       body={bodyContent}
       footer={footerContent} />
